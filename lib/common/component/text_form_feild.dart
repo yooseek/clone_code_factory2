@@ -25,7 +25,7 @@ class CustomTextFormField extends StatelessWidget {
     );
 
     return TextFormField(
-      cursorColor: PRIMATY_COLOR,
+      cursorColor: PRIMARY_COLOR,
       obscureText: obscureText, // 비밀번호 일 때
       autofocus: autofocus,
       onChanged: onChanged,
@@ -43,10 +43,11 @@ class CustomTextFormField extends StatelessWidget {
         // focus 상태의 스타일 세팅 - 컬러만 바꾸었다.
         focusedBorder: baseBorder.copyWith(
           borderSide: baseBorder.borderSide.copyWith(
-            color: PRIMATY_COLOR,
+            color: PRIMARY_COLOR,
             width: 1.0,
           ),
         ),
+        enabledBorder: baseBorder, // 사용가능한 상태의 기본 스타일 세팅
       ),
     );
   }

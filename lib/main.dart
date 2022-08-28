@@ -1,4 +1,6 @@
 import 'package:code_factory2/common/component/text_form_feild.dart';
+import 'package:code_factory2/common/view/splash_screen.dart';
+import 'package:code_factory2/user/view/login_screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -13,23 +15,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CustomTextFormField(
-              hintText: '이메일을 입력해주세요',
-              onChanged: (String value) {},
-            ),
-            CustomTextFormField(
-              hintText: '비밀번호를 입력해주세요',
-              onChanged: (String value) {},
-            ),
-          ],
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(), //터치시 키보드 내리기
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: 'NotoSans'
         ),
+        home: SplashScreen(),
       ),
     );
   }
