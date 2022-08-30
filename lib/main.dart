@@ -2,10 +2,13 @@ import 'package:code_factory2/common/component/text_form_feild.dart';
 import 'package:code_factory2/common/view/splash_screen.dart';
 import 'package:code_factory2/user/view/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   runApp(
-    MyApp(),
+    ProviderScope(
+      child: MyApp(),
+    ),
   );
 }
 
@@ -19,9 +22,7 @@ class MyApp extends StatelessWidget {
       onTap: () => FocusScope.of(context).unfocus(), //터치시 키보드 내리기
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          fontFamily: 'NotoSans'
-        ),
+        theme: ThemeData(fontFamily: 'NotoSans'),
         home: SplashScreen(),
       ),
     );

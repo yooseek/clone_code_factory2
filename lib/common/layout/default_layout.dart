@@ -37,6 +37,7 @@ class DefaultLayout extends StatelessWidget {
           style: TextStyle(
             fontWeight: FontWeight.w500,
             fontSize: 24.0,
+            fontFamily: 'NotoSans'
           ),
         ),
         foregroundColor: Colors.black, // 앱바 위에 올라가는 위젯들의 색상

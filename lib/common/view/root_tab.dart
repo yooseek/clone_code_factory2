@@ -72,7 +72,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin{
       ),
       child: SafeArea(
         child: TabBarView(
-          physics: NeverScrollableScrollPhysics(), // 스크롤을 해도 넘어가지 않음
+          physics: const NeverScrollableScrollPhysics(), // 스크롤을 해도 넘어가지 않음
           controller: controller,
           children: [
             RestaurantScreen(),
