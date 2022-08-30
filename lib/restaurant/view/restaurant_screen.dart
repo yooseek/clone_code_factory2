@@ -1,7 +1,9 @@
 import 'package:code_factory2/common/const/colors.dart';
 import 'package:code_factory2/common/const/data.dart';
+import 'package:code_factory2/common/dio/dio.dart';
 import 'package:code_factory2/restaurant/component/restaurant_card.dart';
 import 'package:code_factory2/restaurant/model/restaurant_model.dart';
+import 'package:code_factory2/restaurant/repository/restaurant_repository.dart';
 import 'package:code_factory2/restaurant/view/restaurant_detail_screen.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -15,9 +17,9 @@ class RestaurantScreen extends StatelessWidget {
       child: Center(
         child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: FutureBuilder<List>(
+            child: FutureBuilder<List<RestaurantModel>>(
               future: paginateRestaurant(),
-              builder: (context, AsyncSnapshot<List> snapshot) {
+              builder: (context, AsyncSnapshot<List<RestaurantModel>> snapshot) {
                 // 데이터가 없을 떄 - 원래는 에러페이지를 리턴하던지 해야함
                 if (!snapshot.hasData) {
                   return Center(
@@ -28,25 +30,10 @@ class RestaurantScreen extends StatelessWidget {
                 return ListView.separated(
                   itemBuilder: (context, index) {
                     // 각 아이템 별로 하나의 RestaurantCard를 구성하게 됨
-                    final item = snapshot.data![index];
 
-                    // 일일이 하는 법 - factory constructor를 사용하자
-                    final pItem2 = RestaurantModel(
-                      id: item['id'],
-                      name: item['name'],
-                      thumbUrl: 'http://$ip${item['thumbUrl']}',
-                      tags: List<String>.from(item['tags']),
-                      priceRange: RestaurantPriceRange.values.firstWhere(
-                        (element) => element.name == item['priceRange'],
-                      ),
-                      ratings: item['ratings'],
-                      ratingsCount: item['ratingsCount'],
-                      deliveryTime: item['deliveryTime'],
-                      deliveryFee: item['deliveryFee'],
-                    );
-
-                    // 팩토리 constructor 사용하는 법
-                    final pItem = RestaurantModel.fromJson(item);
+                    // 팩토리 constructor 사용하는 법 x
+                    // retrofit 사용법
+                    final pItem = snapshot.data![index];
 
                     // 팩토리 constructor 사용하는 법
                     return GestureDetector(
@@ -74,18 +61,15 @@ class RestaurantScreen extends StatelessWidget {
     );
   }
 
-  Future<List> paginateRestaurant() async {
+  Future<List<RestaurantModel>> paginateRestaurant() async {
     final dio = Dio();
 
-    final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
+    // 인터셉터 추가
+    dio.interceptors.add(CustomInterceptor(storage: storage));
 
-    final response = await dio.get(
-      'http://$ip/restaurant',
-      options: Options(headers: {
-        'authorization': 'Bearer $accessToken',
-      }),
-    );
+    final repository = RestaurantRepository(dio,baseUrl: 'http://$ip/restaurant');
+    final response = await repository.paginate();
 
-    return response.data['data'];
+    return response.data;
   }
 }
