@@ -1,8 +1,20 @@
 import 'package:code_factory2/common/model/cursor_pagination_model.dart';
 import 'package:code_factory2/common/model/pagination_params.dart';
+import 'package:code_factory2/restaurant/model/restaurant_detail_model.dart';
 import 'package:code_factory2/restaurant/model/restaurant_model.dart';
 import 'package:code_factory2/restaurant/repository/restaurant_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final restaurantDetailProvider =
+    Provider.family<RestaurantModel?, String>((ref, id) {
+  final state = ref.watch(restaurantProvider);
+
+  if (state is! CursorPagination) {
+    return null;
+  }
+
+  return state.data.firstWhere((element) => element.id == id);
+});
 
 final restaurantProvider =
     StateNotifierProvider<RestaurantStateNotifier, CursorPaginationBase>((ref) {
@@ -23,7 +35,7 @@ class RestaurantStateNotifier extends StateNotifier<CursorPaginationBase> {
     paginate();
   }
 
-  void paginate({
+  Future<void> paginate({
     int fetchCount = 20,
     // true = 추가로 데이터 더 가져옴
     // false = 새로고침 (현재 상태를 덮어씌움)
@@ -32,7 +44,7 @@ class RestaurantStateNotifier extends StateNotifier<CursorPaginationBase> {
     // true - CursorPaginationLoading()
     bool forceRefetch = false,
   }) async {
-    try{
+    try {
       // 5가지 상태
       // 1) CursorPagination - 정상적으로 데이터가 있는 상태
       // 2) CursorPaginationLoading - 데이터가 로딩중인 상태 (현재 캐시 없음)
@@ -77,34 +89,62 @@ class RestaurantStateNotifier extends StateNotifier<CursorPaginationBase> {
       // 4) 데이터를 처음부터 가져오는 상황
       else {
         // 만약 데이터가 있는 상황이라면 기존 데이터를 보존한채로 요청을 진행 - 새로고침
-        if(state is CursorPagination && !forceRefetch) {
+        if (state is CursorPagination && !forceRefetch) {
           final pState = state as CursorPagination;
 
-          state = CursorPaginationRefetching(meta: pState.meta, data: pState.data);
-        }else {
+          state =
+              CursorPaginationRefetching(meta: pState.meta, data: pState.data);
+        } else {
           state = CursorPaginationLoading();
         }
       }
 
       // 데이터 요청
-      final response = await repository.paginate(paginationParams: paginationParams);
+      final response =
+          await repository.paginate(paginationParams: paginationParams);
 
       // 데이터 요청 완료된 후처리
-      if(state is CursorPaginationFetchingMore) {
+      if (state is CursorPaginationFetchingMore) {
         final pState = state as CursorPaginationFetchingMore;
 
         state = response.copyWith(
-          data: [
-            ...pState.data,
-            ...response.data
-          ],
+          data: [...pState.data, ...response.data],
         );
-      }else {
+      } else {
         state = response;
       }
-    }catch(e) {
+    } catch (e) {
       state = CursorPaginationError(message: '데이터를 가져오는데 실패했습니다.');
     }
+  }
+
+  getDetail({
+    required String id,
+  }) async {
+    // 데이터가 하나도 없는 상태라면 - (CursorPaginantion) 이 아니라면
+    if (state is! CursorPagination) {
+      await this.paginate();
+    }
+
+    // 다시 paginate를 했는데도 state가 CursorPaginantion 이 아니라면
+    if (state is! CursorPagination) {
+      return;
+    }
+
+    final pState = state as CursorPagination;
+
+    final RestaurantDetailModel response =
+        await repository.getRestaurantDetail(id: id);
+
+    // 현재 pState는 restaurantModel,
+    // 디테일을 한 번 불러오면 해당 restaurantModel을 restaurantDetailModel로 전환
+    state = pState.copyWith(
+      data: pState.data
+          .map<RestaurantModel>(
+            (e) => e.id == id ? response : e,
+          )
+          .toList(),
+    );
 
   }
 }
