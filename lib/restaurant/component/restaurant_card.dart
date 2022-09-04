@@ -24,6 +24,9 @@ class RestaurantCard extends StatelessWidget {
   // 상세 내용
   final String? detail;
 
+  //hero tag key
+  final String? heroKey;
+
   const RestaurantCard(
       {required this.image,
       required this.name,
@@ -34,6 +37,7 @@ class RestaurantCard extends StatelessWidget {
       required this.ratings,
       this.isDetail = false,
       this.detail,
+      this.heroKey,
       Key? key})
       : super(key: key);
 
@@ -46,6 +50,7 @@ class RestaurantCard extends StatelessWidget {
         model.thumbUrl,
         fit: BoxFit.cover, // 사진이 전체를 차지함
       ),
+      heroKey: model.id,
       name: model.name,
       tags: model.tags,
       ratingsCount: model.ratingsCount,
@@ -61,11 +66,20 @@ class RestaurantCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (isDetail) image,
-        if (!isDetail)
-          // 테두리를 깎을 수 있는 위젯
+        if (heroKey != null)
+          // 태그 값이 똑같으면 위젯을 연결시킬수 있다
+          Hero(
+            tag: ObjectKey(heroKey),
+            child:
+                // 테두리를 깎을 수 있는 위젯
+                ClipRRect(
+              borderRadius: BorderRadius.circular(isDetail ? 0 : 10.0),
+              child: image,
+            ),
+          ),
+        if (heroKey != null)
           ClipRRect(
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(isDetail ? 0 : 10.0),
             child: image,
           ),
         const SizedBox(
