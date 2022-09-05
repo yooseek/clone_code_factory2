@@ -9,6 +9,7 @@ import 'package:code_factory2/restaurant/riverpod/restaurant_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:skeletons/skeletons.dart';
 
 import '../model/restaurant_model.dart';
 
@@ -84,6 +85,24 @@ class _RestaurantDetailScreenState
               ),
             )
         ],
+      ),
+    );
+  }
+
+  SliverPadding renderLoading() {
+    return SliverPadding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.0,
+      ),
+      sliver: SliverList(
+        delegate: SliverChildListDelegate(
+          List.generate(
+            4,
+            (index) => SkeletonParagraph(
+              style: SkeletonParagraphStyle(lines: 5),
+            ),
+          ),
+        ),
       ),
     );
   }
