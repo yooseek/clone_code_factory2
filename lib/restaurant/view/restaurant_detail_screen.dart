@@ -55,9 +55,11 @@ class _RestaurantDetailScreenState
             child: RestaurantCard.fromModel(model: state, isDetail: true),
           ),
 
+          // 디테일 정보가 로딩 중일 때
+          if (state is! RestaurantDetailModel) renderLoading(),
           if (state is RestaurantDetailModel)
             // 일반 위젯을 sliver 형태로 넣을 때 - Label
-            SliverPadding(
+            const SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               sliver: SliverToBoxAdapter(
                 child: Text(
@@ -89,17 +91,23 @@ class _RestaurantDetailScreenState
     );
   }
 
+  // 로딩 중에 로딩표시 보여주기 - skeletons
   SliverPadding renderLoading() {
     return SliverPadding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.0,
-      ),
+      padding: const EdgeInsets.all(16.0),
       sliver: SliverList(
         delegate: SliverChildListDelegate(
           List.generate(
             4,
-            (index) => SkeletonParagraph(
-              style: SkeletonParagraphStyle(lines: 5),
+            (index) => Padding(
+              padding: const EdgeInsets.only(bottom: 32.0),
+              child: SkeletonParagraph(
+                style: SkeletonParagraphStyle(
+                  // 몇 줄 짜리로 보여줄껀지
+                  lines: 5,
+                  padding: EdgeInsets.zero,
+                ),
+              ),
             ),
           ),
         ),
