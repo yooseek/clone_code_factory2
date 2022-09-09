@@ -1,4 +1,5 @@
 import 'package:code_factory2/common/const/data.dart';
+import 'package:code_factory2/common/model/model_with_id.dart';
 import 'package:code_factory2/common/utils/data_utils.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -12,7 +13,7 @@ enum RestaurantPriceRange {
 }
 
 @JsonSerializable()
-class RestaurantModel{
+class RestaurantModel implements IModelWithId{
   // id
   final String id;
 

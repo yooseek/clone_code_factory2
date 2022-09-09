@@ -1,7 +1,12 @@
 import 'package:code_factory2/common/const/data.dart';
 import 'package:code_factory2/common/dio/dio.dart';
 import 'package:code_factory2/common/layout/default_layout.dart';
+import 'package:code_factory2/common/model/cursor_pagination_model.dart';
+import 'package:code_factory2/common/utils/pagination_utils.dart';
 import 'package:code_factory2/product/component/product_card.dart';
+import 'package:code_factory2/rating/component/rating_card.dart';
+import 'package:code_factory2/rating/model/rating_model.dart';
+import 'package:code_factory2/rating/riverpod/rating_provider.dart';
 import 'package:code_factory2/restaurant/component/restaurant_card.dart';
 import 'package:code_factory2/restaurant/model/restaurant_detail_model.dart';
 import 'package:code_factory2/restaurant/repository/restaurant_repository.dart';
@@ -27,16 +32,33 @@ class RestaurantDetailScreen extends ConsumerStatefulWidget {
 
 class _RestaurantDetailScreenState
     extends ConsumerState<RestaurantDetailScreen> {
+
+  final ScrollController controller = ScrollController();
+
   @override
   void initState() {
     super.initState();
 
     ref.read(restaurantProvider.notifier).getDetail(id: widget.id);
+
+    controller.addListener(scrollListener);
+  }
+
+  void scrollListener() {
+    // 현재 위치가 최대 길이보다 조금 덜 되는 위치면
+    // 새로운 데이터를 추가 요청
+    PaginationUtils.paginate(
+      controller: controller,
+      provider: ref.read(ratingProvider(widget.id).notifier),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(restaurantDetailProvider(widget.id));
+    final ratingState = ref.watch(ratingProvider(widget.id));
+
+    print(ratingState);
 
     if (state == null) {
       return Center(
@@ -49,6 +71,7 @@ class _RestaurantDetailScreenState
       child:
           // 두 개의 리스트가 존재하고 대신 하나의 리스트처럼 움직이고 싶을 때
           CustomScrollView(
+            controller: controller,
         slivers: [
           // 일반 위젯을 sliver 형태로 넣을 때
           SliverToBoxAdapter(
@@ -85,7 +108,9 @@ class _RestaurantDetailScreenState
                   childCount: state.products.length,
                 ),
               ),
-            )
+            ),
+          if (ratingState is CursorPagination<RatingModel>)
+            renderRatings(models: ratingState.data),
         ],
       ),
     );
@@ -113,5 +138,31 @@ class _RestaurantDetailScreenState
         ),
       ),
     );
+  }
+
+  SliverPadding renderRatings({required List<RatingModel> models}) {
+    return SliverPadding(
+      padding: EdgeInsets.all(
+        16.0,
+      ),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            return Padding(
+                padding: EdgeInsets.only(
+                  bottom: 8.0,
+                ),
+                child: RatingCard.fromModel(model: models[index]));
+          },
+          childCount: models.length,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(scrollListener);
+    super.dispose();
   }
 }

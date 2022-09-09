@@ -2,6 +2,7 @@ import 'package:code_factory2/common/const/colors.dart';
 import 'package:code_factory2/common/const/data.dart';
 import 'package:code_factory2/common/dio/dio.dart';
 import 'package:code_factory2/common/model/cursor_pagination_model.dart';
+import 'package:code_factory2/common/utils/pagination_utils.dart';
 import 'package:code_factory2/restaurant/component/restaurant_card.dart';
 import 'package:code_factory2/restaurant/model/restaurant_model.dart';
 import 'package:code_factory2/restaurant/repository/restaurant_repository.dart';
@@ -29,11 +30,11 @@ class _RestaurantScreenState extends ConsumerState<RestaurantScreen> {
   void scrollListener() {
     // 현재 위치가 최대 길이보다 조금 덜 되는 위치면
     // 새로운 데이터를 추가 요청
-    if (controller.offset > controller.position.maxScrollExtent - 300) {
-      ref.read(restaurantProvider.notifier).paginate(fetchMore: true);
-    }
+    PaginationUtils.paginate(
+      controller: controller,
+      provider: ref.read(restaurantProvider.notifier),
+    );
   }
-
 
   @override
   void dispose() {

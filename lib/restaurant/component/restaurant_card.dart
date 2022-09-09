@@ -77,7 +77,7 @@ class RestaurantCard extends StatelessWidget {
               child: image,
             ),
           ),
-        if (heroKey != null)
+        if (heroKey == null)
           ClipRRect(
             borderRadius: BorderRadius.circular(isDetail ? 0 : 10.0),
             child: image,

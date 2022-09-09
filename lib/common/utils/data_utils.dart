@@ -1,7 +1,11 @@
 import 'package:code_factory2/common/const/data.dart';
 
 class DataUtils {
-  static pathToUrl(String thumbUrl) {
+  static String pathToUrl(String thumbUrl) {
     return 'http://$ip$thumbUrl';
+  }
+
+  static List<String> listPathToUrls(List paths) {
+    return paths.map((e) => pathToUrl(e)).toList();
   }
 }
