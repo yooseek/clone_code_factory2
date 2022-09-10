@@ -58,8 +58,6 @@ class _RestaurantDetailScreenState
     final state = ref.watch(restaurantDetailProvider(widget.id));
     final ratingState = ref.watch(ratingProvider(widget.id));
 
-    print(ratingState);
-
     if (state == null) {
       return Center(
         child: CircularProgressIndicator(),
@@ -102,7 +100,7 @@ class _RestaurantDetailScreenState
                     return Padding(
                       padding: const EdgeInsets.only(top: 16.0),
                       child:
-                          ProductCard.fromModel(model: state.products[index]),
+                          ProductCard.fromRestaurantProductModel(model: state.products[index]),
                     );
                   },
                   childCount: state.products.length,

@@ -1,6 +1,6 @@
 import 'package:code_factory2/common/const/data.dart';
 import 'package:code_factory2/common/utils/data_utils.dart';
-import 'package:code_factory2/product/model/product_model.dart';
+import 'package:code_factory2/restaurant/model/restaurant_product_model.dart';
 import 'package:code_factory2/restaurant/model/restaurant_model.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -9,7 +9,7 @@ part 'restaurant_detail_model.g.dart';
 @JsonSerializable()
 class RestaurantDetailModel extends RestaurantModel {
   final String detail;
-  final List<ProductModel> products;
+  final List<RestaurantProductModel> products;
 
   RestaurantDetailModel({
     required super.id,

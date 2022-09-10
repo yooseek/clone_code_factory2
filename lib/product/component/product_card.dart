@@ -1,5 +1,6 @@
 import 'package:code_factory2/common/const/colors.dart';
 import 'package:code_factory2/product/model/product_model.dart';
+import 'package:code_factory2/restaurant/model/restaurant_product_model.dart';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
@@ -16,7 +17,20 @@ class ProductCard extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  factory ProductCard.fromModel({required ProductModel model}) {
+  factory ProductCard.fromRestaurantProductModel({required RestaurantProductModel model}) {
+    return ProductCard(
+        image: Image.network(
+          model.imgUrl,
+          fit: BoxFit.cover,
+          width: 110,
+          height: 110,
+        ),
+        name: model.name,
+        detail: model.detail,
+        price: model.price);
+  }
+
+  factory ProductCard.fromProductModel({required ProductModel model}) {
     return ProductCard(
         image: Image.network(
           model.imgUrl,

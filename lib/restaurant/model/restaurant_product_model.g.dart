@@ -1,27 +1,24 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'product_model.dart';
+part of '../../restaurant/model/restaurant_product_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-ProductModel _$ProductModelFromJson(Map<String, dynamic> json) => ProductModel(
+RestaurantProductModel _$ProductModelFromJson(Map<String, dynamic> json) => RestaurantProductModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      detail: json['detail'] as String,
       imgUrl: DataUtils.pathToUrl(json['imgUrl'] as String),
+      detail: json['detail'] as String,
       price: json['price'] as int,
-      restaurant:
-          RestaurantModel.fromJson(json['restaurant'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
+Map<String, dynamic> _$ProductModelToJson(RestaurantProductModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
-      'detail': instance.detail,
       'imgUrl': instance.imgUrl,
+      'detail': instance.detail,
       'price': instance.price,
-      'restaurant': instance.restaurant,
     };

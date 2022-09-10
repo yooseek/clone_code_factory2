@@ -3,6 +3,7 @@ import 'package:code_factory2/restaurant/model/restaurant_detail_model.dart';
 import 'package:code_factory2/restaurant/model/restaurant_model.dart';
 import 'package:code_factory2/restaurant/repository/restaurant_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:collection/collection.dart';
 
 import '../../common/riverpod/pagination_provider.dart';
 
@@ -14,7 +15,9 @@ final restaurantDetailProvider =
     return null;
   }
 
-  return state.data.firstWhere((element) => element.id == id);
+  // import 'package:collection/collection.dart';
+  // 찾는 값이 없을 때 오류가 아닌 null을 반환
+  return state.data.firstWhereOrNull((element) => element.id == id);
 });
 
 final restaurantProvider =
@@ -49,15 +52,25 @@ class RestaurantStateNotifier extends PaginationProvider<RestaurantModel,Restaur
     final RestaurantDetailModel response =
         await repository.getRestaurantDetail(id: id);
 
-    // 현재 pState는 restaurantModel,
-    // 디테일을 한 번 불러오면 해당 restaurantModel을 restaurantDetailModel로 전환
-    state = pState.copyWith(
-      data: pState.data
-          .map<RestaurantModel>(
-            (e) => e.id == id ? response : e,
-          )
-          .toList(),
-    );
-
+    // restaurantModel은 없는데 restaurantDetailModel을 가져왔을 때
+    // 그냥 뒤에 추가
+    if(pState.data.where((element) => element.id == id).isEmpty) {
+      state = pState.copyWith(
+        data: <RestaurantModel>[
+          ...pState.data,
+          response,
+        ]
+      );
+    }else {
+      // 현재 pState는 restaurantModel,
+      // 디테일을 한 번 불러오면 해당 restaurantModel을 restaurantDetailModel로 전환
+      state = pState.copyWith(
+        data: pState.data
+            .map<RestaurantModel>(
+              (e) => e.id == id ? response : e,
+        )
+            .toList(),
+      );
+    }
   }
 }
