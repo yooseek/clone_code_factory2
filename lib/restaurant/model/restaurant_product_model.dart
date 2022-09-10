@@ -2,7 +2,7 @@ import 'package:code_factory2/common/model/model_with_id.dart';
 import 'package:code_factory2/common/utils/data_utils.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part '../../restaurant/model/restaurant_product_model.g.dart';
+part 'restaurant_product_model.g.dart';
 
 @JsonSerializable()
 class RestaurantProductModel implements IModelWithId{
@@ -24,6 +24,6 @@ class RestaurantProductModel implements IModelWithId{
   });
 
   factory RestaurantProductModel.fromJson(Map<String,dynamic> json) =>
-  _$ProductModelFromJson(json);
+  _$RestaurantProductModelFromJson(json);
 
 }

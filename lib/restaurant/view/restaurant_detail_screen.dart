@@ -19,10 +19,11 @@ import 'package:skeletons/skeletons.dart';
 import '../model/restaurant_model.dart';
 
 class RestaurantDetailScreen extends ConsumerStatefulWidget {
-  final String id;
-  final String name;
+  static String get routerName => 'restaurantDetail';
 
-  const RestaurantDetailScreen({required this.id, required this.name, Key? key})
+  final String id;
+
+  const RestaurantDetailScreen({required this.id, Key? key})
       : super(key: key);
 
   @override
@@ -65,7 +66,7 @@ class _RestaurantDetailScreenState
     }
 
     return DefaultLayout(
-      title: widget.name,
+      title: state.name,
       child:
           // 두 개의 리스트가 존재하고 대신 하나의 리스트처럼 움직이고 싶을 때
           CustomScrollView(
