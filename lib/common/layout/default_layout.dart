@@ -5,12 +5,14 @@ class DefaultLayout extends StatelessWidget {
   final Color? backgroundColor;
   final String? title;
   final BottomNavigationBar? bottomNavigationBar;
+  final Widget? floatingActionButton;
 
   const DefaultLayout({
     required this.child,
     this.backgroundColor,
     this.title,
     this.bottomNavigationBar,
+    this.floatingActionButton,
     Key? key,
   }) : super(key: key);
 
@@ -22,6 +24,7 @@ class DefaultLayout extends StatelessWidget {
       body: child,
       // 아래 탭
       bottomNavigationBar: bottomNavigationBar,
+      floatingActionButton: floatingActionButton,
     );
   }
 

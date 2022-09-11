@@ -1,9 +1,12 @@
+import 'package:badges/badges.dart';
+import 'package:code_factory2/common/const/colors.dart';
 import 'package:code_factory2/common/const/data.dart';
 import 'package:code_factory2/common/dio/dio.dart';
 import 'package:code_factory2/common/layout/default_layout.dart';
 import 'package:code_factory2/common/model/cursor_pagination_model.dart';
 import 'package:code_factory2/common/utils/pagination_utils.dart';
 import 'package:code_factory2/product/component/product_card.dart';
+import 'package:code_factory2/product/model/product_model.dart';
 import 'package:code_factory2/rating/component/rating_card.dart';
 import 'package:code_factory2/rating/model/rating_model.dart';
 import 'package:code_factory2/rating/riverpod/rating_provider.dart';
@@ -11,9 +14,12 @@ import 'package:code_factory2/restaurant/component/restaurant_card.dart';
 import 'package:code_factory2/restaurant/model/restaurant_detail_model.dart';
 import 'package:code_factory2/restaurant/repository/restaurant_repository.dart';
 import 'package:code_factory2/restaurant/riverpod/restaurant_provider.dart';
+import 'package:code_factory2/restaurant/view/basket_screen.dart';
+import 'package:code_factory2/user/riverpod/basket_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:skeletons/skeletons.dart';
 
 import '../model/restaurant_model.dart';
@@ -23,8 +29,7 @@ class RestaurantDetailScreen extends ConsumerStatefulWidget {
 
   final String id;
 
-  const RestaurantDetailScreen({required this.id, Key? key})
-      : super(key: key);
+  const RestaurantDetailScreen({required this.id, Key? key}) : super(key: key);
 
   @override
   ConsumerState<RestaurantDetailScreen> createState() =>
@@ -33,7 +38,6 @@ class RestaurantDetailScreen extends ConsumerStatefulWidget {
 
 class _RestaurantDetailScreenState
     extends ConsumerState<RestaurantDetailScreen> {
-
   final ScrollController controller = ScrollController();
 
   @override
@@ -58,6 +62,7 @@ class _RestaurantDetailScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(restaurantDetailProvider(widget.id));
     final ratingState = ref.watch(ratingProvider(widget.id));
+    final basketState = ref.watch(basketProvider);
 
     if (state == null) {
       return Center(
@@ -67,10 +72,36 @@ class _RestaurantDetailScreenState
 
     return DefaultLayout(
       title: state.name,
+      // floatingActionButton 에 뱃지 사용하기
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.pushNamed(BasketScreen.routeName);
+        },
+        backgroundColor: PRIMARY_COLOR,
+        child: Badge(
+          // 언제 뱃지를 보여줄꺼냐
+          showBadge: basketState.isNotEmpty,
+          // 뱃지 카운트 내용
+          badgeContent: Text(
+            basketState
+                .fold<int>(0,
+                    (previousValue, element) => previousValue + element.count)
+                .toString(),
+            style: TextStyle(
+              color: PRIMARY_COLOR,
+              fontSize: 10.0,
+            ),
+          ),
+          // 뱃지 위치
+          position: BadgePosition(top: - 16,end: -16),
+          child: Icon(Icons.shopping_basket_outlined),
+          badgeColor: Colors.white,
+        ),
+      ),
       child:
           // 두 개의 리스트가 존재하고 대신 하나의 리스트처럼 움직이고 싶을 때
           CustomScrollView(
-            controller: controller,
+        controller: controller,
         slivers: [
           // 일반 위젯을 sliver 형태로 넣을 때
           SliverToBoxAdapter(
@@ -98,10 +129,25 @@ class _RestaurantDetailScreenState
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child:
-                          ProductCard.fromRestaurantProductModel(model: state.products[index]),
+                    final model = state.products[index];
+
+                    return InkWell(
+                      onTap: () {
+                        ref.read(basketProvider.notifier).addToBasket(
+                              product: ProductModel(
+                                  id: model.id,
+                                  name: model.name,
+                                  detail: model.detail,
+                                  imgUrl: model.imgUrl,
+                                  price: model.price,
+                                  restaurant: state),
+                            );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        child: ProductCard.fromRestaurantProductModel(
+                            model: model),
+                      ),
                     );
                   },
                   childCount: state.products.length,

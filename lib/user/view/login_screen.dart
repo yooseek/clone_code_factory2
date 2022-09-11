@@ -4,11 +4,8 @@ import 'package:code_factory2/common/component/text_form_feild.dart';
 import 'package:code_factory2/common/const/colors.dart';
 import 'package:code_factory2/common/const/data.dart';
 import 'package:code_factory2/common/layout/default_layout.dart';
-import 'package:code_factory2/common/secure_storage/secure_storage.dart';
-import 'package:code_factory2/common/view/root_tab.dart';
 import 'package:code_factory2/user/model/user_model.dart';
 import 'package:code_factory2/user/riverpod/user_me_provider.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -27,20 +24,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(userMeProvider);
-
-    // 에러일 때
-    if (state is UserModelError) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            state.error,
-            textAlign: TextAlign.center,
-          ),
-        ],
-      );
-    }
 
     return DefaultLayout(
       child: SafeArea(

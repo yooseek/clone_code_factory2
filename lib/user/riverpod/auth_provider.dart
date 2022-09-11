@@ -1,5 +1,7 @@
 import 'package:code_factory2/common/view/root_tab.dart';
 import 'package:code_factory2/common/view/splash_screen.dart';
+import 'package:code_factory2/order/view/order_done_screen.dart';
+import 'package:code_factory2/restaurant/view/basket_screen.dart';
 import 'package:code_factory2/restaurant/view/restaurant_detail_screen.dart';
 import 'package:code_factory2/user/model/user_model.dart';
 import 'package:code_factory2/user/riverpod/user_me_provider.dart';
@@ -34,8 +36,8 @@ class AuthProvider extends ChangeNotifier {
               GoRoute(
                 path: 'restaurant/:rid',
                 name: RestaurantDetailScreen.routerName,
-                builder: (context, state) => RestaurantDetailScreen(
-                    id: state.params['rid']!),
+                builder: (context, state) =>
+                    RestaurantDetailScreen(id: state.params['rid']!),
               ),
             ]),
         GoRoute(
@@ -46,6 +48,14 @@ class AuthProvider extends ChangeNotifier {
             path: '/login',
             name: LoginScreen.routeName,
             builder: (context, state) => LoginScreen()),
+        GoRoute(
+            path: '/basket',
+            name: BasketScreen.routeName,
+            builder: (context, state) => BasketScreen()),
+        GoRoute(
+            path: '/order_done',
+            name: OrderDoneScreen.routeName,
+            builder: (context, state) => OrderDoneScreen()),
       ];
 
   // SplashScreen
