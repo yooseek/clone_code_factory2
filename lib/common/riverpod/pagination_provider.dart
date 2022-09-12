@@ -2,19 +2,46 @@ import 'package:code_factory2/common/model/cursor_pagination_model.dart';
 import 'package:code_factory2/common/model/model_with_id.dart';
 import 'package:code_factory2/common/model/pagination_params.dart';
 import 'package:code_factory2/common/respository/base_pagination_repository.dart';
+import 'package:debounce_throttle/debounce_throttle.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PaginationProvider<
-T extends IModelWithId,
-U extends IBasePaginationRepository<T>>
-extends StateNotifier<CursorPaginationBase> {
+class _PaginationInfo {
+  final int fetchCount;
+  // true = 추가로 데이터 더 가져옴
+  // false = 새로고침 (현재 상태를 덮어씌움)
+  final bool fetchMore;
+  // 강제로 다시 로딩하기
+  // true - CursorPaginationLoading()
+  final bool forceRefetch;
+
+  const _PaginationInfo({
+    this.fetchCount = 20,
+    this.fetchMore = false,
+    this.forceRefetch = false,
+  });
+}
+
+class PaginationProvider<T extends IModelWithId,
+        U extends IBasePaginationRepository<T>>
+    extends StateNotifier<CursorPaginationBase> {
   final U repository;
+  final paginationThrottle = Throttle(
+    Duration(seconds: 1),
+    initialValue: _PaginationInfo(),
+    // true = 함수 실행 입력 값이 똑같은 때는 실행하지 않는다.
+    // false = 입력 값이 똑같더라도 실행한다.
+    checkEquality: false,
+  );
 
   PaginationProvider({
     required this.repository,
   }) : super(CursorPaginationLoading()) {
     // 해당 RestaurantStateNotifier 가 생성될 떄 아래 메소드를 실행해라
     paginate();
+
+    paginationThrottle.values.listen((state) {
+      _throttlePagination(state);
+    });
   }
 
   Future<void> paginate({
@@ -26,6 +53,14 @@ extends StateNotifier<CursorPaginationBase> {
     // true - CursorPaginationLoading()
     bool forceRefetch = false,
   }) async {
+    paginationThrottle.setValue(_PaginationInfo(
+      fetchCount: fetchCount,
+      forceRefetch: forceRefetch,
+      fetchMore: fetchMore,
+    ));
+  }
+
+  _throttlePagination(_PaginationInfo info) async {
     try {
       // 5가지 상태
       // 1) CursorPagination - 정상적으로 데이터가 있는 상태
@@ -36,7 +71,7 @@ extends StateNotifier<CursorPaginationBase> {
 
       // 조건
       // 1) meta 안에 hasMore 가 false 일 때 (다음 데이터가 없을 때)
-      if (state is CursorPagination && !forceRefetch) {
+      if (state is CursorPagination && !info.forceRefetch) {
         final pState = state as CursorPagination;
         // 다음 데이터가 없으면 paginate는 더 이상 진행할 필요없음
         if (!pState.meta.hasMore) {
@@ -49,14 +84,14 @@ extends StateNotifier<CursorPaginationBase> {
       final isRefetching = state is CursorPaginationRefetching;
       final isFetchingMore = state is CursorPaginationFetchingMore;
       // 로딩 중이면서 새로운 데이터를 추가로 또 요청하면 더 이상 진행할 필요없음
-      if (fetchMore && (isLoading || isRefetching || isFetchingMore)) {
+      if (info.fetchMore && (isLoading || isRefetching || isFetchingMore)) {
         return;
       }
 
-      PaginationParams paginationParams = PaginationParams(count: fetchCount);
+      PaginationParams paginationParams = PaginationParams(count: info.fetchCount);
 
       // 3) 캐시가 되어진 후 데이터를 더 불러올 때 - fetchMore : true
-      if (fetchMore) {
+      if (info.fetchMore) {
         final pState = state as CursorPagination<T>;
 
         state = CursorPaginationFetchingMore(
@@ -71,11 +106,11 @@ extends StateNotifier<CursorPaginationBase> {
       // 4) 데이터를 처음부터 가져오는 상황
       else {
         // 만약 데이터가 있는 상황이라면 기존 데이터를 보존한채로 요청을 진행 - 새로고침
-        if (state is CursorPagination && !forceRefetch) {
+        if (state is CursorPagination && !info.forceRefetch) {
           final pState = state as CursorPagination<T>;
 
-          state =
-              CursorPaginationRefetching<T>(meta: pState.meta, data: pState.data);
+          state = CursorPaginationRefetching<T>(
+              meta: pState.meta, data: pState.data);
         } else {
           state = CursorPaginationLoading();
         }

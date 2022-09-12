@@ -91,38 +91,48 @@ class _PaginationListViewState<T extends IModelWithId> extends ConsumerState<Pag
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: ListView.separated(
-        controller: controller,
-        itemCount: cp.data.length + 1,
-        itemBuilder: (context, index) {
-          if (index == cp.data.length) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Center(
-                child: cp is CursorPaginationFetchingMore
-                    ? CircularProgressIndicator()
-                    : Text('마지막 데이터입니다.'),
-              ),
-            );
-          }
-
-          // 각 아이템 별로 하나의 RestaurantCard를 구성하게 됨
-
-          // 팩토리 constructor 사용하는 법 x
-          // retrofit 사용법
-          final pItem = cp.data[index];
-
-          return widget.itemBuilder(context,index,pItem);
-        },
-        separatorBuilder: (context, index) {
-          return const Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0),
-            child: Divider(
-              color: BODY_TEXT_COLOR,
-              thickness: 2.0,
-            ),
+      // 리프레쉬 가능
+      child: RefreshIndicator(
+        onRefresh: () async {
+          ref.read(widget.provider.notifier).paginate(
+            forceRefetch: true,
           );
         },
+        child: ListView.separated(
+          // 스크롤이 짧아도 항상 스크롤 가능하게 해줌
+          physics: AlwaysScrollableScrollPhysics(),
+          controller: controller,
+          itemCount: cp.data.length + 1,
+          itemBuilder: (context, index) {
+            if (index == cp.data.length) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Center(
+                  child: cp is CursorPaginationFetchingMore
+                      ? CircularProgressIndicator()
+                      : Text('마지막 데이터입니다.'),
+                ),
+              );
+            }
+
+            // 각 아이템 별로 하나의 RestaurantCard를 구성하게 됨
+
+            // 팩토리 constructor 사용하는 법 x
+            // retrofit 사용법
+            final pItem = cp.data[index];
+
+            return widget.itemBuilder(context,index,pItem);
+          },
+          separatorBuilder: (context, index) {
+            return const Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.0),
+              child: Divider(
+                color: BODY_TEXT_COLOR,
+                thickness: 2.0,
+              ),
+            );
+          },
+        ),
       ),
     );
   }

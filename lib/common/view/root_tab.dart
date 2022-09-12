@@ -1,5 +1,6 @@
 import 'package:code_factory2/common/const/colors.dart';
 import 'package:code_factory2/common/layout/default_layout.dart';
+import 'package:code_factory2/order/view/order_screen.dart';
 import 'package:code_factory2/product/view/product_screen.dart';
 import 'package:code_factory2/restaurant/view/restaurant_screen.dart';
 import 'package:code_factory2/user/view/profile_screen.dart';
@@ -81,7 +82,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin{
           children: [
             RestaurantScreen(),
             ProductScreen(),
-            Container(child: Text('주문'),),
+            OrderScreen(),
             ProfileScreen(),
           ],
         ),
