@@ -73,4 +73,9 @@ class RestaurantStateNotifier extends PaginationProvider<RestaurantModel,Restaur
       );
     }
   }
+
+  Future<List<RestaurantDetailModel>> testGetDetail() async {
+    repository.getRestaurantDetail(id: '1');
+    return [];
+  }
 }

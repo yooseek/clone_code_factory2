@@ -16,6 +16,7 @@ class CursorPaginationLoading extends CursorPaginationBase {}
 
 // OK 상태
 // 임의의 타입을 받아서 serializable 가능하게 함
+
 @JsonSerializable(
   genericArgumentFactories: true,
 )
